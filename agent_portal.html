@@ -182,6 +182,23 @@
             text-decoration: underline;
         }
 
+        .mfa-code-display {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .mfa-code-display .code {
+            font-size: 24px;
+            font-weight: bold;
+            font-family: monospace;
+            color: #00d4ff;
+            letter-spacing: 3px;
+        }
+
         .session-info {
             background: rgba(255, 255, 255, 0.02);
             border-radius: 8px;
@@ -296,10 +313,18 @@
 
             <div id="authStatus" class="status-display" style="display: none;"></div>
             
+            <div id="mfaCodeContainer" class="mfa-code-display" style="display: none;">
+                <div><strong>Generated MFA Code:</strong></div>
+                <div class="code" id="generatedCode">------</div>
+                <div style="font-size: 12px; color: #888; margin-top: 5px;">
+                    (Customer will enter this code)
+                </div>
+            </div>
+            
             <div id="authLinkContainer" style="display: none;">
                 <div class="auth-link">
                     <strong>Customer Authentication Link:</strong><br>
-                    <a href="#" id="authLink" target="_blank">Click to open customer portal</a>
+                    <a href="#" id="authLink" target="_blank">Click to manually open customer portal</a>
                 </div>
             </div>
         </div>
@@ -329,6 +354,10 @@
 
         function generateSessionId() {
             return 'VT-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
+        }
+
+        function generateMFACode() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
         }
 
         function addLogEntry(message) {
@@ -372,6 +401,7 @@
                                 localStorage.removeItem(`auth_${currentSessionId}`);
                                 currentSessionId = null;
                                 document.getElementById('authLinkContainer').style.display = 'none';
+                                document.getElementById('mfaCodeContainer').style.display = 'none';
                                 document.getElementById('sessionInfo').style.display = 'none';
                             }, 5000);
                             
@@ -387,6 +417,7 @@
                                 localStorage.removeItem(`auth_${currentSessionId}`);
                                 currentSessionId = null;
                                 document.getElementById('authLinkContainer').style.display = 'none';
+                                document.getElementById('mfaCodeContainer').style.display = 'none';
                                 document.getElementById('sessionInfo').style.display = 'none';
                             }, 5000);
                         }
@@ -403,8 +434,9 @@
             const customerEmail = document.getElementById('customerEmail').value;
             const authMethod = document.getElementById('authMethod').value;
             
-            // Generate session
+            // Generate session and MFA code
             currentSessionId = generateSessionId();
+            const mfaCode = generateMFACode();
             
             // Store session data
             const sessionData = {
@@ -413,6 +445,7 @@
                 customerPhone,
                 customerEmail,
                 authMethod,
+                mfaCode,
                 status: 'pending',
                 timestamp: new Date().toISOString()
             };
@@ -425,16 +458,24 @@
             document.getElementById('sessionStatus').textContent = 'Pending Authentication';
             document.getElementById('sessionInfo').style.display = 'block';
             
-            // Show auth link - CORRECTED URL GENERATION
+            // Show generated MFA code
+            document.getElementById('generatedCode').textContent = mfaCode;
+            document.getElementById('mfaCodeContainer').style.display = 'block';
+            
+            // Show auth link
             const authUrl = `https://justinwatersinsight.github.io/VisonaryTechnologies/customer_portal.html?session=${currentSessionId}`;
             document.getElementById('authLink').href = authUrl;
             document.getElementById('authLink').textContent = authUrl;
             document.getElementById('authLinkContainer').style.display = 'block';
             
+            // Auto-open customer portal in new window
+            const customerWindow = window.open(authUrl, 'customerAuth', 'width=500,height=700,scrollbars=yes,resizable=yes');
+            
             updateAuthStatus('pending', `<div class="spinner"></div>Waiting for ${customerName} to complete authentication...`);
             addLogEntry(`Authentication request sent to ${customerName} via ${authMethod.toUpperCase()}`);
             addLogEntry(`Session ${currentSessionId} created`);
-            addLogEntry(`Generated customer portal URL`);
+            addLogEntry(`Generated MFA code: ${mfaCode}`);
+            addLogEntry(`Customer portal opened automatically`);
             
             // Update buttons
             document.getElementById('sendAuthBtn').disabled = true;
@@ -455,6 +496,7 @@
                 document.getElementById('sendAuthBtn').disabled = false;
                 document.getElementById('cancelAuthBtn').disabled = true;
                 document.getElementById('authLinkContainer').style.display = 'none';
+                document.getElementById('mfaCodeContainer').style.display = 'none';
                 document.getElementById('sessionInfo').style.display = 'none';
                 
                 currentSessionId = null;
