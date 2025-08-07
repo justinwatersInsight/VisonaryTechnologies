@@ -253,17 +253,6 @@
             font-size: 11px;
         }
 
-        .debug-info {
-            background: rgba(255, 0, 255, 0.1);
-            border: 1px solid rgba(255, 0, 255, 0.3);
-            border-radius: 8px;
-            padding: 10px;
-            margin-top: 10px;
-            font-family: monospace;
-            font-size: 11px;
-            color: #ff69b4;
-        }
-
         @media (max-width: 768px) {
             .main-container {
                 grid-template-columns: 1fr;
@@ -342,11 +331,6 @@
                     <a href="#" id="authLink" target="_blank">Click to manually open customer portal</a>
                 </div>
             </div>
-
-            <div id="debugInfo" class="debug-info" style="display: none;">
-                <div>Debug Info:</div>
-                <div id="debugContent"></div>
-            </div>
         </div>
 
         <!-- Session Monitor Panel -->
@@ -377,7 +361,6 @@
         }
 
         function generateMFACode() {
-            // Generate a 6-digit number, ensuring it's always 6 digits
             const code = Math.floor(100000 + Math.random() * 900000).toString();
             console.log('Generated MFA Code:', code);
             return code;
@@ -401,13 +384,6 @@
             statusDiv.style.display = 'block';
             statusDiv.className = `status-display status-${status}`;
             statusDiv.innerHTML = message;
-        }
-
-        function updateDebugInfo(info) {
-            const debugDiv = document.getElementById('debugInfo');
-            const debugContent = document.getElementById('debugContent');
-            debugContent.innerHTML = info;
-            debugDiv.style.display = 'block';
         }
 
         function startPolling() {
@@ -434,7 +410,6 @@
                                 document.getElementById('authLinkContainer').style.display = 'none';
                                 document.getElementById('mfaCodeContainer').style.display = 'none';
                                 document.getElementById('sessionInfo').style.display = 'none';
-                                document.getElementById('debugInfo').style.display = 'none';
                             }, 5000);
                             
                         } else if (data.status === 'failed') {
@@ -451,13 +426,36 @@
                                 document.getElementById('authLinkContainer').style.display = 'none';
                                 document.getElementById('mfaCodeContainer').style.display = 'none';
                                 document.getElementById('sessionInfo').style.display = 'none';
-                                document.getElementById('debugInfo').style.display = 'none';
                             }, 5000);
                         }
                     }
                 }
             }, 1000);
         }
+
+        // Listen for cross-domain messages from customer portal
+        window.addEventListener('message', function(event) {
+            // Accept messages from any origin for demo purposes
+            // In production, you'd check event.origin
+            
+            if (event.data && event.data.type === 'authUpdate') {
+                const sessionId = event.data.sessionId;
+                const status = event.data.status;
+                
+                if (sessionId === currentSessionId) {
+                    // Update the session data
+                    const sessionData = localStorage.getItem(`auth_${sessionId}`);
+                    if (sessionData) {
+                        const data = JSON.parse(sessionData);
+                        data.status = status;
+                        data.completedAt = event.data.timestamp;
+                        localStorage.setItem(`auth_${sessionId}`, JSON.stringify(data));
+                        
+                        addLogEntry(`Received cross-domain update: ${status}`);
+                    }
+                }
+            }
+        });
 
         document.getElementById('customerForm').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -474,7 +472,7 @@
             console.log('Creating session:', currentSessionId);
             console.log('Generated MFA code:', mfaCode);
             
-            // Store session data
+            // Store session data (for agent portal polling)
             const sessionData = {
                 sessionId: currentSessionId,
                 customerName,
@@ -486,13 +484,8 @@
                 timestamp: new Date().toISOString()
             };
             
-            // Store in localStorage
-            const storageKey = `auth_${currentSessionId}`;
-            localStorage.setItem(storageKey, JSON.stringify(sessionData));
-            
-            // Verify storage
-            const storedData = localStorage.getItem(storageKey);
-            console.log('Stored data:', storedData);
+            // Store in localStorage for agent portal
+            localStorage.setItem(`auth_${currentSessionId}`, JSON.stringify(sessionData));
             
             // Update UI
             document.getElementById('sessionId').textContent = currentSessionId;
@@ -504,16 +497,15 @@
             document.getElementById('generatedCode').textContent = mfaCode;
             document.getElementById('mfaCodeContainer').style.display = 'block';
             
-            // Show debug info
-            updateDebugInfo(`
-                Session: ${currentSessionId}<br>
-                MFA Code: ${mfaCode}<br>
-                Storage Key: ${storageKey}<br>
-                Stored: ${storedData ? 'YES' : 'NO'}
-            `);
+            // Create URL with all data as parameters (URL-encoded)
+            const authUrl = `https://justinwatersinsight.github.io/VisonaryTechnologies/customer_portal.html?` +
+                `session=${currentSessionId}&` +
+                `name=${encodeURIComponent(customerName)}&` +
+                `phone=${encodeURIComponent(customerPhone)}&` +
+                `email=${encodeURIComponent(customerEmail)}&` +
+                `code=${mfaCode}&` +
+                `method=${authMethod}`;
             
-            // Show auth link
-            const authUrl = `https://justinwatersinsight.github.io/VisonaryTechnologies/customer_portal.html?session=${currentSessionId}`;
             document.getElementById('authLink').href = authUrl;
             document.getElementById('authLink').textContent = authUrl;
             document.getElementById('authLinkContainer').style.display = 'block';
@@ -554,7 +546,6 @@
                 document.getElementById('authLinkContainer').style.display = 'none';
                 document.getElementById('mfaCodeContainer').style.display = 'none';
                 document.getElementById('sessionInfo').style.display = 'none';
-                document.getElementById('debugInfo').style.display = 'none';
                 
                 currentSessionId = null;
             }
@@ -576,11 +567,6 @@
                     localStorage.removeItem(key);
                 }
             });
-        });
-
-        // Debug: Show all localStorage keys
-        window.addEventListener('load', () => {
-            console.log('Current localStorage keys:', Object.keys(localStorage));
         });
     </script>
 </body>
