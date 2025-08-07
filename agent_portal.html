@@ -186,17 +186,21 @@
             background: rgba(0, 212, 255, 0.1);
             border: 1px solid rgba(0, 212, 255, 0.3);
             border-radius: 8px;
-            padding: 15px;
+            padding: 20px;
             margin-top: 15px;
             text-align: center;
         }
 
         .mfa-code-display .code {
-            font-size: 24px;
+            font-size: 32px;
             font-weight: bold;
             font-family: monospace;
             color: #00d4ff;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
+            margin: 10px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
         }
 
         .session-info {
@@ -247,6 +251,17 @@
         .log-time {
             color: #888;
             font-size: 11px;
+        }
+
+        .debug-info {
+            background: rgba(255, 0, 255, 0.1);
+            border: 1px solid rgba(255, 0, 255, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 11px;
+            color: #ff69b4;
         }
 
         @media (max-width: 768px) {
@@ -314,10 +329,10 @@
             <div id="authStatus" class="status-display" style="display: none;"></div>
             
             <div id="mfaCodeContainer" class="mfa-code-display" style="display: none;">
-                <div><strong>Generated MFA Code:</strong></div>
+                <div><strong>🔐 Generated MFA Code:</strong></div>
                 <div class="code" id="generatedCode">------</div>
                 <div style="font-size: 12px; color: #888; margin-top: 5px;">
-                    (Customer will enter this code)
+                    Customer will enter this code to authenticate
                 </div>
             </div>
             
@@ -326,6 +341,11 @@
                     <strong>Customer Authentication Link:</strong><br>
                     <a href="#" id="authLink" target="_blank">Click to manually open customer portal</a>
                 </div>
+            </div>
+
+            <div id="debugInfo" class="debug-info" style="display: none;">
+                <div>Debug Info:</div>
+                <div id="debugContent"></div>
             </div>
         </div>
 
@@ -357,7 +377,10 @@
         }
 
         function generateMFACode() {
-            return Math.floor(100000 + Math.random() * 900000).toString();
+            // Generate a 6-digit number, ensuring it's always 6 digits
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            console.log('Generated MFA Code:', code);
+            return code;
         }
 
         function addLogEntry(message) {
@@ -370,6 +393,7 @@
             `;
             log.appendChild(entry);
             log.scrollTop = log.scrollHeight;
+            console.log('Log:', message);
         }
 
         function updateAuthStatus(status, message) {
@@ -377,6 +401,13 @@
             statusDiv.style.display = 'block';
             statusDiv.className = `status-display status-${status}`;
             statusDiv.innerHTML = message;
+        }
+
+        function updateDebugInfo(info) {
+            const debugDiv = document.getElementById('debugInfo');
+            const debugContent = document.getElementById('debugContent');
+            debugContent.innerHTML = info;
+            debugDiv.style.display = 'block';
         }
 
         function startPolling() {
@@ -403,6 +434,7 @@
                                 document.getElementById('authLinkContainer').style.display = 'none';
                                 document.getElementById('mfaCodeContainer').style.display = 'none';
                                 document.getElementById('sessionInfo').style.display = 'none';
+                                document.getElementById('debugInfo').style.display = 'none';
                             }, 5000);
                             
                         } else if (data.status === 'failed') {
@@ -419,6 +451,7 @@
                                 document.getElementById('authLinkContainer').style.display = 'none';
                                 document.getElementById('mfaCodeContainer').style.display = 'none';
                                 document.getElementById('sessionInfo').style.display = 'none';
+                                document.getElementById('debugInfo').style.display = 'none';
                             }, 5000);
                         }
                     }
@@ -438,6 +471,9 @@
             currentSessionId = generateSessionId();
             const mfaCode = generateMFACode();
             
+            console.log('Creating session:', currentSessionId);
+            console.log('Generated MFA code:', mfaCode);
+            
             // Store session data
             const sessionData = {
                 sessionId: currentSessionId,
@@ -445,12 +481,18 @@
                 customerPhone,
                 customerEmail,
                 authMethod,
-                mfaCode,
+                mfaCode: mfaCode,
                 status: 'pending',
                 timestamp: new Date().toISOString()
             };
             
-            localStorage.setItem(`auth_${currentSessionId}`, JSON.stringify(sessionData));
+            // Store in localStorage
+            const storageKey = `auth_${currentSessionId}`;
+            localStorage.setItem(storageKey, JSON.stringify(sessionData));
+            
+            // Verify storage
+            const storedData = localStorage.getItem(storageKey);
+            console.log('Stored data:', storedData);
             
             // Update UI
             document.getElementById('sessionId').textContent = currentSessionId;
@@ -458,9 +500,17 @@
             document.getElementById('sessionStatus').textContent = 'Pending Authentication';
             document.getElementById('sessionInfo').style.display = 'block';
             
-            // Show generated MFA code
+            // Show generated MFA code prominently
             document.getElementById('generatedCode').textContent = mfaCode;
             document.getElementById('mfaCodeContainer').style.display = 'block';
+            
+            // Show debug info
+            updateDebugInfo(`
+                Session: ${currentSessionId}<br>
+                MFA Code: ${mfaCode}<br>
+                Storage Key: ${storageKey}<br>
+                Stored: ${storedData ? 'YES' : 'NO'}
+            `);
             
             // Show auth link
             const authUrl = `https://justinwatersinsight.github.io/VisonaryTechnologies/customer_portal.html?session=${currentSessionId}`;
@@ -469,13 +519,19 @@
             document.getElementById('authLinkContainer').style.display = 'block';
             
             // Auto-open customer portal in new window
-            const customerWindow = window.open(authUrl, 'customerAuth', 'width=500,height=700,scrollbars=yes,resizable=yes');
+            setTimeout(() => {
+                const customerWindow = window.open(authUrl, 'customerAuth', 'width=500,height=700,scrollbars=yes,resizable=yes');
+                if (customerWindow) {
+                    addLogEntry('Customer portal opened automatically');
+                } else {
+                    addLogEntry('Pop-up blocked - use manual link');
+                }
+            }, 500);
             
             updateAuthStatus('pending', `<div class="spinner"></div>Waiting for ${customerName} to complete authentication...`);
             addLogEntry(`Authentication request sent to ${customerName} via ${authMethod.toUpperCase()}`);
             addLogEntry(`Session ${currentSessionId} created`);
             addLogEntry(`Generated MFA code: ${mfaCode}`);
-            addLogEntry(`Customer portal opened automatically`);
             
             // Update buttons
             document.getElementById('sendAuthBtn').disabled = true;
@@ -498,6 +554,7 @@
                 document.getElementById('authLinkContainer').style.display = 'none';
                 document.getElementById('mfaCodeContainer').style.display = 'none';
                 document.getElementById('sessionInfo').style.display = 'none';
+                document.getElementById('debugInfo').style.display = 'none';
                 
                 currentSessionId = null;
             }
@@ -515,9 +572,15 @@
             // Clean up any old sessions
             Object.keys(localStorage).forEach(key => {
                 if (key.startsWith('auth_VT-')) {
+                    console.log('Cleaning up old session:', key);
                     localStorage.removeItem(key);
                 }
             });
+        });
+
+        // Debug: Show all localStorage keys
+        window.addEventListener('load', () => {
+            console.log('Current localStorage keys:', Object.keys(localStorage));
         });
     </script>
 </body>
