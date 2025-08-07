@@ -380,7 +380,8 @@
                 Storage Key: auth_${sessionId}<br>
                 All localStorage keys: ${allKeys.length}<br>
                 Auth keys: ${authKeys.join(', ') || 'NONE'}<br>
-                Session Data: ${sessionData ? 'LOADED' : 'NOT FOUND'}
+                Session Data: ${sessionData ? 'LOADED' : 'NOT FOUND'}<br>
+                MFA Code: ${sessionData?.mfaCode || 'N/A'}
             `;
         }
 
@@ -459,4 +460,132 @@
                 console.log('No session data found');
                 document.getElementById('sessionDebug').innerHTML = `
                     Session ID: ${sessionId}<br>
-                    Storage Key: ${storageKey
+                    Storage Key: ${storageKey}<br>
+                    Data Found: NO<br>
+                    Available Keys: ${Object.keys(localStorage).filter(k => k.startsWith('auth_')).join(', ') || 'NONE'}
+                `;
+                showStep('invalidSession');
+                return;
+            }
+
+            try {
+                sessionData = JSON.parse(authDataStr);
+                console.log('Parsed session data:', sessionData);
+                
+                // Display customer info
+                document.getElementById('customerName').textContent = sessionData.customerName;
+                document.getElementById('customerInfo').style.display = 'block';
+                
+                // Pre-fill verification fields
+                document.getElementById('verifyPhone').placeholder = sessionData.customerPhone.slice(-4);
+                document.getElementById('verifyEmail').value = sessionData.customerEmail;
+                
+                // Show the required MFA code prominently
+                if (sessionData.mfaCode) {
+                    document.getElementById('requiredCode').textContent = sessionData.mfaCode;
+                    console.log('MFA Code set to:', sessionData.mfaCode);
+                } else {
+                    console.log('No MFA code in session data');
+                    document.getElementById('requiredCode').textContent = 'ERROR';
+                }
+                
+                updateDebugInfo();
+                showStep('step1');
+                
+            } catch (error) {
+                console.error('Error parsing session data:', error);
+                document.getElementById('sessionDebug').innerHTML = `
+                    Session ID: ${sessionId}<br>
+                    Storage Key: ${storageKey}<br>
+                    Error: Failed to parse JSON<br>
+                    Raw Data: ${authDataStr}
+                `;
+                showStep('invalidSession');
+            }
+        }
+
+        // Identity verification
+        document.getElementById('identityForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const phone = document.getElementById('verifyPhone').value;
+            const email = document.getElementById('verifyEmail').value;
+            
+            // Simple validation
+            if (phone === sessionData.customerPhone.slice(-4) && email === sessionData.customerEmail) {
+                showLoading(true);
+                setTimeout(() => {
+                    showLoading(false);
+                    showStep('step2');
+                    mfaDigits[0].focus();
+                }, 1500);
+            } else {
+                alert('Information does not match our records. Please try again.');
+            }
+        });
+
+        // MFA verification
+        document.getElementById('mfaForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const code = Array.from(mfaDigits).map(input => input.value).join('');
+            console.log('Entered code:', code);
+            console.log('Expected code:', sessionData.mfaCode);
+            
+            if (code === sessionData.mfaCode) {
+                showLoading(true);
+                
+                // Update session status
+                sessionData.status = 'completed';
+                sessionData.completedAt = new Date().toISOString();
+                localStorage.setItem(`auth_${sessionId}`, JSON.stringify(sessionData));
+                
+                setTimeout(() => {
+                    showLoading(false);
+                    showStep('step3');
+                    startCountdown();
+                }, 2000);
+            } else {
+                // Mark as failed
+                sessionData.status = 'failed';
+                sessionData.failedAt = new Date().toISOString();
+                localStorage.setItem(`auth_${sessionId}`, JSON.stringify(sessionData));
+                
+                alert(`Invalid verification code. Expected: ${sessionData.mfaCode}, Got: ${code}`);
+            }
+        });
+
+        // Auto-fill button
+        document.getElementById('autoFillBtn').addEventListener('click', autoFillCode);
+
+        // Copy code button
+        document.getElementById('copyCodeBtn').addEventListener('click', copyCodeToClipboard);
+
+        // Back button
+        document.getElementById('backBtn').addEventListener('click', () => {
+            showStep('step1');
+        });
+
+        function startCountdown() {
+            let seconds = 10;
+            const countdownEl = document.getElementById('countdown');
+            
+            const interval = setInterval(() => {
+                seconds--;
+                countdownEl.textContent = seconds;
+                
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    window.close();
+                }
+            }, 1000);
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            // Small delay to ensure localStorage is ready
+            setTimeout(initializeSession, 100);
+        });
+    </script>
+</body>
+</html>
