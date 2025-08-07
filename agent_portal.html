@@ -96,6 +96,15 @@
             box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
         }
 
+        .form-group input::placeholder {
+            color: #666;
+        }
+
+        .form-group select option {
+            background: #2d2d2d;
+            color: #fff;
+        }
+
         .btn {
             padding: 12px 24px;
             background: linear-gradient(135deg, #00d4ff, #0099cc);
@@ -166,6 +175,7 @@
         .auth-link a {
             color: #00d4ff;
             text-decoration: none;
+            font-size: 13px;
         }
 
         .auth-link a:hover {
@@ -225,6 +235,16 @@
         @media (max-width: 768px) {
             .main-container {
                 grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .agent-info {
+                text-align: center;
             }
         }
     </style>
@@ -351,6 +371,8 @@
                             setTimeout(() => {
                                 localStorage.removeItem(`auth_${currentSessionId}`);
                                 currentSessionId = null;
+                                document.getElementById('authLinkContainer').style.display = 'none';
+                                document.getElementById('sessionInfo').style.display = 'none';
                             }, 5000);
                             
                         } else if (data.status === 'failed') {
@@ -364,6 +386,8 @@
                             setTimeout(() => {
                                 localStorage.removeItem(`auth_${currentSessionId}`);
                                 currentSessionId = null;
+                                document.getElementById('authLinkContainer').style.display = 'none';
+                                document.getElementById('sessionInfo').style.display = 'none';
                             }, 5000);
                         }
                     }
@@ -401,14 +425,16 @@
             document.getElementById('sessionStatus').textContent = 'Pending Authentication';
             document.getElementById('sessionInfo').style.display = 'block';
             
-            // Show auth link - CORRECTED FOR YOUR URLs
+            // Show auth link - CORRECTED URL GENERATION
             const authUrl = `https://justinwatersinsight.github.io/VisonaryTechnologies/customer_portal.html?session=${currentSessionId}`;
             document.getElementById('authLink').href = authUrl;
+            document.getElementById('authLink').textContent = authUrl;
             document.getElementById('authLinkContainer').style.display = 'block';
             
             updateAuthStatus('pending', `<div class="spinner"></div>Waiting for ${customerName} to complete authentication...`);
             addLogEntry(`Authentication request sent to ${customerName} via ${authMethod.toUpperCase()}`);
             addLogEntry(`Session ${currentSessionId} created`);
+            addLogEntry(`Generated customer portal URL`);
             
             // Update buttons
             document.getElementById('sendAuthBtn').disabled = true;
@@ -429,16 +455,27 @@
                 document.getElementById('sendAuthBtn').disabled = false;
                 document.getElementById('cancelAuthBtn').disabled = true;
                 document.getElementById('authLinkContainer').style.display = 'none';
+                document.getElementById('sessionInfo').style.display = 'none';
                 
                 currentSessionId = null;
             }
         });
 
-        // Auto-populate demo data
+        // Auto-populate demo data on page load
         window.addEventListener('load', () => {
             document.getElementById('customerName').value = 'John Smith';
             document.getElementById('customerPhone').value = '(555) 123-4567';
             document.getElementById('customerEmail').value = 'john.smith@example.com';
+        });
+
+        // Clear any existing sessions on page load
+        window.addEventListener('load', () => {
+            // Clean up any old sessions
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('auth_VT-')) {
+                    localStorage.removeItem(key);
+                }
+            });
         });
     </script>
 </body>
