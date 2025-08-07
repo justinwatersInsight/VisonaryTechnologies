@@ -401,8 +401,8 @@
             document.getElementById('sessionStatus').textContent = 'Pending Authentication';
             document.getElementById('sessionInfo').style.display = 'block';
             
-            // Show auth link
-            const authUrl = `${window.location.origin}${window.location.pathname.replace('agent-portal.html', '')}customer-auth.html?session=${currentSessionId}`;
+            // Show auth link - CORRECTED FOR YOUR URLs
+            const authUrl = `https://justinwatersinsight.github.io/VisonaryTechnologies/customer_portal.html?session=${currentSessionId}`;
             document.getElementById('authLink').href = authUrl;
             document.getElementById('authLinkContainer').style.display = 'block';
             
