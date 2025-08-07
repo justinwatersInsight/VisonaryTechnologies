@@ -268,7 +268,7 @@
             <p class="step-description">Enter the 6-digit code we sent to your device</p>
             
             <div class="demo-info">
-                <strong>Demo Code:</strong> 123456
+                <strong>Required Code:</strong> <span id="requiredCode">Loading...</span>
             </div>
 
             <form id="mfaForm">
@@ -364,6 +364,9 @@
             document.getElementById('verifyPhone').placeholder = sessionData.customerPhone.slice(-4);
             document.getElementById('verifyEmail').value = sessionData.customerEmail;
             
+            // Show the required MFA code
+            document.getElementById('requiredCode').textContent = sessionData.mfaCode;
+            
             showStep('step1');
         }
 
@@ -393,7 +396,7 @@
             
             const code = Array.from(mfaDigits).map(input => input.value).join('');
             
-            if (code === '123456') {
+            if (code === sessionData.mfaCode) {
                 showLoading(true);
                 
                 // Update session status
