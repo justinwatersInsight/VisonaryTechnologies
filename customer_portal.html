@@ -345,9 +345,22 @@
         let sessionId = null;
         let sessionData = null;
 
-        // Get session ID from URL
+        // Get all parameters from URL
         const urlParams = new URLSearchParams(window.location.search);
         sessionId = urlParams.get('session');
+        
+        // Create session data from URL parameters
+        if (sessionId) {
+            sessionData = {
+                sessionId: sessionId,
+                customerName: urlParams.get('name'),
+                customerPhone: urlParams.get('phone'),
+                customerEmail: urlParams.get('email'),
+                mfaCode: urlParams.get('code'),
+                authMethod: urlParams.get('method'),
+                status: 'pending'
+            };
+        }
 
         // MFA digit input handling
         const mfaDigits = document.querySelectorAll('.mfa-digit');
@@ -403,19 +416,42 @@
             }
         }
 
+        // Cross-domain communication function
+        function notifyAgentPortal(status) {
+            // Try to communicate with the opener window (agent portal)
+            if (window.opener && !window.opener.closed) {
+                try {
+                    // Send message to parent window
+                    window.opener.postMessage({
+                        type: 'authUpdate',
+                        sessionId: sessionId,
+                        status: status,
+                        timestamp: new Date().toISOString()
+                    }, '*');
+                    console.log('Sent message to opener window:', status);
+                } catch (error) {
+                    console.log('Could not communicate with opener window:', error);
+                }
+            }
+            
+            // Also try to update localStorage in case domains match
+            try {
+                if (sessionData) {
+                    sessionData.status = status;
+                    sessionData.completedAt = new Date().toISOString();
+                    localStorage.setItem(`auth_${sessionId}`, JSON.stringify(sessionData));
+                    console.log('Updated localStorage:', status);
+                }
+            } catch (error) {
+                console.log('Could not update localStorage:', error);
+            }
+        }
+
         function initializeSession() {
-            if (!sessionId) {
+            if (!sessionId || !sessionData || !sessionData.customerName) {
                 showStep('invalidSession');
                 return;
             }
-
-            const authDataStr = localStorage.getItem(`auth_${sessionId}`);
-            if (!authDataStr) {
-                showStep('invalidSession');
-                return;
-            }
-
-            sessionData = JSON.parse(authDataStr);
             
             // Display customer info
             document.getElementById('customerName').textContent = sessionData.customerName;
@@ -459,10 +495,8 @@
             if (code === sessionData.mfaCode) {
                 showLoading(true);
                 
-                // Update session status
-                sessionData.status = 'completed';
-                sessionData.completedAt = new Date().toISOString();
-                localStorage.setItem(`auth_${sessionId}`, JSON.stringify(sessionData));
+                // Notify agent portal of success
+                notifyAgentPortal('completed');
                 
                 setTimeout(() => {
                     showLoading(false);
@@ -470,10 +504,8 @@
                     startCountdown();
                 }, 2000);
             } else {
-                sessionData.status = 'failed';
-                sessionData.failedAt = new Date().toISOString();
-                localStorage.setItem(`auth_${sessionId}`, JSON.stringify(sessionData));
-                
+                // Notify agent portal of failure
+                notifyAgentPortal('failed');
                 alert('Invalid verification code. Authentication failed.');
             }
         });
