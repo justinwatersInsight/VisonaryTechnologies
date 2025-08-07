@@ -163,6 +163,13 @@
             color: #ddd;
         }
 
+        .btn-small {
+            width: auto;
+            padding: 8px 16px;
+            font-size: 14px;
+            margin: 5px;
+        }
+
         .loading {
             display: none;
             text-align: center;
@@ -192,10 +199,31 @@
             background: rgba(255, 193, 7, 0.1);
             border: 1px solid rgba(255, 193, 7, 0.3);
             border-radius: 10px;
-            padding: 15px;
+            padding: 20px;
             margin-bottom: 20px;
-            font-size: 14px;
+            font-size: 16px;
             color: #ffc107;
+            text-align: center;
+        }
+
+        .demo-code {
+            font-size: 36px;
+            font-weight: bold;
+            font-family: monospace;
+            color: #00d4ff;
+            letter-spacing: 6px;
+            margin: 15px 0;
+            padding: 20px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 8px;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
         }
 
         .success-message {
@@ -218,6 +246,17 @@
             text-align: center;
             color: #dc3545;
         }
+
+        .debug-info {
+            background: rgba(255, 0, 255, 0.1);
+            border: 1px solid rgba(255, 0, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #ff69b4;
+        }
     </style>
 </head>
 <body>
@@ -225,6 +264,11 @@
         <div class="logo">
             <h1>Visionary Technologies</h1>
             <p>Customer Authentication Portal</p>
+        </div>
+
+        <div id="debugInfo" class="debug-info">
+            <div><strong>Debug Info:</strong></div>
+            <div id="debugContent">Loading...</div>
         </div>
 
         <div id="customerInfo" class="customer-info" style="display: none;">
@@ -239,6 +283,7 @@
                 <h2>⚠️ Invalid Session</h2>
                 <p>This authentication link is invalid or has expired.</p>
                 <p>Please contact customer service for assistance.</p>
+                <div id="sessionDebug" style="margin-top: 15px; font-size: 12px;"></div>
             </div>
         </div>
 
@@ -268,7 +313,15 @@
             <p class="step-description">Enter the 6-digit code we sent to your device</p>
             
             <div class="demo-info">
-                <strong>Required Code:</strong> <span id="requiredCode">Loading...</span>
+                <strong>🔐 Your Verification Code:</strong>
+                <div class="demo-code" id="requiredCode">------</div>
+                <div class="code-actions">
+                    <button type="button" class="btn btn-small" id="autoFillBtn">Auto-Fill Code</button>
+                    <button type="button" class="btn btn-small btn-secondary" id="copyCodeBtn">Copy Code</button>
+                </div>
+                <div style="font-size: 12px; color: #888; margin-top: 10px;">
+                    For demo purposes - in production, this would be sent via SMS/Email
+                </div>
             </div>
 
             <form id="mfaForm">
@@ -313,6 +366,24 @@
         const urlParams = new URLSearchParams(window.location.search);
         sessionId = urlParams.get('session');
 
+        console.log('Customer portal loaded');
+        console.log('Session ID from URL:', sessionId);
+
+        // Update debug info
+        function updateDebugInfo() {
+            const debugContent = document.getElementById('debugContent');
+            const allKeys = Object.keys(localStorage);
+            const authKeys = allKeys.filter(key => key.startsWith('auth_'));
+            
+            debugContent.innerHTML = `
+                Session ID: ${sessionId || 'NONE'}<br>
+                Storage Key: auth_${sessionId}<br>
+                All localStorage keys: ${allKeys.length}<br>
+                Auth keys: ${authKeys.join(', ') || 'NONE'}<br>
+                Session Data: ${sessionData ? 'LOADED' : 'NOT FOUND'}
+            `;
+        }
+
         // MFA digit input handling
         const mfaDigits = document.querySelectorAll('.mfa-digit');
         
@@ -342,105 +413,50 @@
             document.getElementById('loading').classList.toggle('active', show);
         }
 
+        function autoFillCode() {
+            if (sessionData && sessionData.mfaCode) {
+                const code = sessionData.mfaCode;
+                mfaDigits.forEach((input, index) => {
+                    input.value = code[index] || '';
+                });
+                mfaDigits[0].focus();
+            }
+        }
+
+        function copyCodeToClipboard() {
+            if (sessionData && sessionData.mfaCode) {
+                navigator.clipboard.writeText(sessionData.mfaCode).then(() => {
+                    const btn = document.getElementById('copyCodeBtn');
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 2000);
+                }).catch(() => {
+                    // Fallback for older browsers
+                    alert(`Code: ${sessionData.mfaCode}`);
+                });
+            }
+        }
+
         function initializeSession() {
+            updateDebugInfo();
+            
             if (!sessionId) {
+                console.log('No session ID provided');
+                document.getElementById('sessionDebug').innerHTML = 'No session ID in URL';
                 showStep('invalidSession');
                 return;
             }
 
-            const authDataStr = localStorage.getItem(`auth_${sessionId}`);
+            const storageKey = `auth_${sessionId}`;
+            const authDataStr = localStorage.getItem(storageKey);
+            
+            console.log('Looking for storage key:', storageKey);
+            console.log('Found data:', authDataStr);
+            
             if (!authDataStr) {
-                showStep('invalidSession');
-                return;
-            }
-
-            sessionData = JSON.parse(authDataStr);
-            
-            // Display customer info
-            document.getElementById('customerName').textContent = sessionData.customerName;
-            document.getElementById('customerInfo').style.display = 'block';
-            
-            // Pre-fill verification fields
-            document.getElementById('verifyPhone').placeholder = sessionData.customerPhone.slice(-4);
-            document.getElementById('verifyEmail').value = sessionData.customerEmail;
-            
-            // Show the required MFA code
-            document.getElementById('requiredCode').textContent = sessionData.mfaCode;
-            
-            showStep('step1');
-        }
-
-        // Identity verification
-        document.getElementById('identityForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const phone = document.getElementById('verifyPhone').value;
-            const email = document.getElementById('verifyEmail').value;
-            
-            // Simple validation
-            if (phone === sessionData.customerPhone.slice(-4) && email === sessionData.customerEmail) {
-                showLoading(true);
-                setTimeout(() => {
-                    showLoading(false);
-                    showStep('step2');
-                    mfaDigits[0].focus();
-                }, 1500);
-            } else {
-                alert('Information does not match our records. Please try again.');
-            }
-        });
-
-        // MFA verification
-        document.getElementById('mfaForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const code = Array.from(mfaDigits).map(input => input.value).join('');
-            
-            if (code === sessionData.mfaCode) {
-                showLoading(true);
-                
-                // Update session status
-                sessionData.status = 'completed';
-                sessionData.completedAt = new Date().toISOString();
-                localStorage.setItem(`auth_${sessionId}`, JSON.stringify(sessionData));
-                
-                setTimeout(() => {
-                    showLoading(false);
-                    showStep('step3');
-                    startCountdown();
-                }, 2000);
-            } else {
-                // Mark as failed
-                sessionData.status = 'failed';
-                sessionData.failedAt = new Date().toISOString();
-                localStorage.setItem(`auth_${sessionId}`, JSON.stringify(sessionData));
-                
-                alert('Invalid verification code. Authentication failed.');
-            }
-        });
-
-        // Back button
-        document.getElementById('backBtn').addEventListener('click', () => {
-            showStep('step1');
-        });
-
-        function startCountdown() {
-            let seconds = 10;
-            const countdownEl = document.getElementById('countdown');
-            
-            const interval = setInterval(() => {
-                seconds--;
-                countdownEl.textContent = seconds;
-                
-                if (seconds <= 0) {
-                    clearInterval(interval);
-                    window.close();
-                }
-            }, 1000);
-        }
-
-        // Initialize on page load
-        window.addEventListener('load', initializeSession);
-    </script>
-</body>
-</html>
+                console.log('No session data found');
+                document.getElementById('sessionDebug').innerHTML = `
+                    Session ID: ${sessionId}<br>
+                    Storage Key: ${storageKey
