@@ -246,17 +246,6 @@
             text-align: center;
             color: #dc3545;
         }
-
-        .debug-info {
-            background: rgba(255, 0, 255, 0.1);
-            border: 1px solid rgba(255, 0, 255, 0.3);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            font-family: monospace;
-            font-size: 12px;
-            color: #ff69b4;
-        }
     </style>
 </head>
 <body>
@@ -264,11 +253,6 @@
         <div class="logo">
             <h1>Visionary Technologies</h1>
             <p>Customer Authentication Portal</p>
-        </div>
-
-        <div id="debugInfo" class="debug-info">
-            <div><strong>Debug Info:</strong></div>
-            <div id="debugContent">Initializing...</div>
         </div>
 
         <div id="customerInfo" class="customer-info" style="display: none;">
@@ -283,7 +267,6 @@
                 <h2>⚠️ Invalid Session</h2>
                 <p>This authentication link is invalid or has expired.</p>
                 <p>Please contact customer service for assistance.</p>
-                <div id="sessionDebug" style="margin-top: 15px; font-size: 12px;"></div>
             </div>
         </div>
 
@@ -359,255 +342,170 @@
     </div>
 
     <script>
-        // Initialize immediately when script loads
-        console.log('Customer portal script starting...');
-        
         let sessionId = null;
         let sessionData = null;
 
-        // Get session ID from URL immediately
-        try {
-            const urlParams = new URLSearchParams(window.location.search);
-            sessionId = urlParams.get('session');
-            console.log('Session ID from URL:', sessionId);
-        } catch (error) {
-            console.error('Error getting session ID:', error);
-        }
-
-        // Update debug info function
-        function updateDebugInfo() {
-            try {
-                const debugContent = document.getElementById('debugContent');
-                if (!debugContent) return;
-                
-                const allKeys = Object.keys(localStorage);
-                const authKeys = allKeys.filter(key => key.startsWith('auth_'));
-                
-                debugContent.innerHTML = `
-                    Session ID: ${sessionId || 'NONE'}<br>
-                    Storage Key: auth_${sessionId}<br>
-                    All localStorage keys: ${allKeys.length}<br>
-                    Auth keys: ${authKeys.join(', ') || 'NONE'}<br>
-                    Session Data: ${sessionData ? 'LOADED' : 'NOT FOUND'}<br>
-                    MFA Code: ${sessionData?.mfaCode || 'N/A'}
-                `;
-            } catch (error) {
-                console.error('Error updating debug info:', error);
-            }
-        }
-
-        // Show step function
-        function showStep(stepId) {
-            try {
-                document.querySelectorAll('.auth-step').forEach(step => {
-                    step.classList.remove('active');
-                });
-                const targetStep = document.getElementById(stepId);
-                if (targetStep) {
-                    targetStep.classList.add('active');
-                }
-            } catch (error) {
-                console.error('Error showing step:', error);
-            }
-        }
-
-        // Initialize session function
-        function initializeSession() {
-            console.log('Initializing session...');
-            
-            try {
-                updateDebugInfo();
-                
-                if (!sessionId) {
-                    console.log('No session ID provided');
-                    const sessionDebug = document.getElementById('sessionDebug');
-                    if (sessionDebug) {
-                        sessionDebug.innerHTML = 'No session ID in URL';
-                    }
-                    showStep('invalidSession');
-                    return;
-                }
-
-                const storageKey = `auth_${sessionId}`;
-                const authDataStr = localStorage.getItem(storageKey);
-                
-                console.log('Looking for storage key:', storageKey);
-                console.log('Found data:', authDataStr);
-                
-                if (!authDataStr) {
-                    console.log('No session data found');
-                    const sessionDebug = document.getElementById('sessionDebug');
-                    if (sessionDebug) {
-                        sessionDebug.innerHTML = `
-                            Session ID: ${sessionId}<br>
-                            Storage Key: ${storageKey}<br>
-                            Data Found: NO<br>
-                            Available Keys: ${Object.keys(localStorage).filter(k => k.startsWith('auth_')).join(', ') || 'NONE'}
-                        `;
-                    }
-                    showStep('invalidSession');
-                    return;
-                }
-
-                sessionData = JSON.parse(authDataStr);
-                console.log('Parsed session data:', sessionData);
-                
-                // Display customer info
-                const customerNameEl = document.getElementById('customerName');
-                const customerInfoEl = document.getElementById('customerInfo');
-                if (customerNameEl && customerInfoEl) {
-                    customerNameEl.textContent = sessionData.customerName;
-                    customerInfoEl.style.display = 'block';
-                }
-                
-                // Pre-fill verification fields
-                const verifyPhoneEl = document.getElementById('verifyPhone');
-                const verifyEmailEl = document.getElementById('verifyEmail');
-                if (verifyPhoneEl && verifyEmailEl) {
-                    verifyPhoneEl.placeholder = sessionData.customerPhone.slice(-4);
-                    verifyEmailEl.value = sessionData.customerEmail;
-                }
-                
-                // Show the required MFA code prominently
-                const requiredCodeEl = document.getElementById('requiredCode');
-                if (requiredCodeEl && sessionData.mfaCode) {
-                    requiredCodeEl.textContent = sessionData.mfaCode;
-                    console.log('MFA Code set to:', sessionData.mfaCode);
-                } else {
-                    console.log('No MFA code in session data or element not found');
-                    if (requiredCodeEl) {
-                        requiredCodeEl.textContent = 'ERROR';
-                    }
-                }
-                
-                updateDebugInfo();
-                showStep('step1');
-                
-            } catch (error) {
-                console.error('Error initializing session:', error);
-                const sessionDebug = document.getElementById('sessionDebug');
-                if (sessionDebug) {
-                    sessionDebug.innerHTML = `Error: ${error.message}`;
-                }
-                showStep('invalidSession');
-            }
-        }
+        // Get session ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        sessionId = urlParams.get('session');
 
         // MFA digit input handling
-        function setupMFAInputs() {
-            const mfaDigits = document.querySelectorAll('.mfa-digit');
-            
-            mfaDigits.forEach((input, index) => {
-                input.addEventListener('input', (e) => {
-                    const value = e.target.value;
-                    if (value && index < mfaDigits.length - 1) {
-                        mfaDigits[index + 1].focus();
-                    }
-                });
-                
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
-                        mfaDigits[index - 1].focus();
-                    }
-                });
+        const mfaDigits = document.querySelectorAll('.mfa-digit');
+        
+        mfaDigits.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                const value = e.target.value;
+                if (value && index < mfaDigits.length - 1) {
+                    mfaDigits[index + 1].focus();
+                }
             });
+            
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    mfaDigits[index - 1].focus();
+                }
+            });
+        });
+
+        function showStep(stepId) {
+            document.querySelectorAll('.auth-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.getElementById(stepId).classList.add('active');
         }
 
-        // Auto-fill code function
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('active', show);
+        }
+
         function autoFillCode() {
             if (sessionData && sessionData.mfaCode) {
-                const mfaDigits = document.querySelectorAll('.mfa-digit');
                 const code = sessionData.mfaCode;
                 mfaDigits.forEach((input, index) => {
                     input.value = code[index] || '';
                 });
-                if (mfaDigits[0]) mfaDigits[0].focus();
+                mfaDigits[0].focus();
             }
         }
 
-        // Initialize everything when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log('DOM loaded, initializing...');
-                setupMFAInputs();
-                initializeSession();
-            });
-        } else {
-            console.log('DOM already loaded, initializing immediately...');
-            setupMFAInputs();
-            initializeSession();
+        function copyCodeToClipboard() {
+            if (sessionData && sessionData.mfaCode) {
+                navigator.clipboard.writeText(sessionData.mfaCode).then(() => {
+                    const btn = document.getElementById('copyCodeBtn');
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 2000);
+                }).catch(() => {
+                    alert(`Code: ${sessionData.mfaCode}`);
+                });
+            }
         }
 
-        // Set up event listeners when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            // Auto-fill button
-            const autoFillBtn = document.getElementById('autoFillBtn');
-            if (autoFillBtn) {
-                autoFillBtn.addEventListener('click', autoFillCode);
+        function initializeSession() {
+            if (!sessionId) {
+                showStep('invalidSession');
+                return;
             }
 
-            // Identity form
-            const identityForm = document.getElementById('identityForm');
-            if (identityForm) {
-                identityForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    
-                    const phone = document.getElementById('verifyPhone').value;
-                    const email = document.getElementById('verifyEmail').value;
-                    
-                    if (phone === sessionData.customerPhone.slice(-4) && email === sessionData.customerEmail) {
-                        showStep('step2');
-                        const firstDigit = document.querySelector('.mfa-digit');
-                        if (firstDigit) firstDigit.focus();
-                    } else {
-                        alert('Information does not match our records. Please try again.');
-                    }
-                });
+            const authDataStr = localStorage.getItem(`auth_${sessionId}`);
+            if (!authDataStr) {
+                showStep('invalidSession');
+                return;
             }
 
-            // MFA form
-            const mfaForm = document.getElementById('mfaForm');
-            if (mfaForm) {
-                mfaForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    
-                    const mfaDigits = document.querySelectorAll('.mfa-digit');
-                    const code = Array.from(mfaDigits).map(input => input.value).join('');
-                    
-                    if (code === sessionData.mfaCode) {
-                        // Update session status
-                        sessionData.status = 'completed';
-                        sessionData.completedAt = new Date().toISOString();
-                        localStorage.setItem(`auth_${sessionId}`, JSON.stringify(sessionData));
-                        
-                        showStep('step3');
-                        
-                        // Start countdown
-                        let seconds = 10;
-                        const countdownEl = document.getElementById('countdown');
-                        const interval = setInterval(() => {
-                            seconds--;
-                            if (countdownEl) countdownEl.textContent = seconds;
-                            if (seconds <= 0) {
-                                clearInterval(interval);
-                                window.close();
-                            }
-                        }, 1000);
-                    } else {
-                        alert(`Invalid verification code. Expected: ${sessionData.mfaCode}, Got: ${code}`);
-                    }
-                });
+            sessionData = JSON.parse(authDataStr);
+            
+            // Display customer info
+            document.getElementById('customerName').textContent = sessionData.customerName;
+            document.getElementById('customerInfo').style.display = 'block';
+            
+            // Pre-fill verification fields
+            document.getElementById('verifyPhone').placeholder = sessionData.customerPhone.slice(-4);
+            document.getElementById('verifyEmail').value = sessionData.customerEmail;
+            
+            // Show the required MFA code
+            document.getElementById('requiredCode').textContent = sessionData.mfaCode;
+            
+            showStep('step1');
+        }
+
+        // Identity verification
+        document.getElementById('identityForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const phone = document.getElementById('verifyPhone').value;
+            const email = document.getElementById('verifyEmail').value;
+            
+            if (phone === sessionData.customerPhone.slice(-4) && email === sessionData.customerEmail) {
+                showLoading(true);
+                setTimeout(() => {
+                    showLoading(false);
+                    showStep('step2');
+                    mfaDigits[0].focus();
+                }, 1500);
+            } else {
+                alert('Information does not match our records. Please try again.');
             }
         });
 
-        // Also try to initialize immediately in case DOMContentLoaded already fired
-        setTimeout(() => {
-            if (!sessionData) {
-                console.log('Fallback initialization...');
-                setupMFAInputs();
-                initializeSession();
+        // MFA verification
+        document.getElementById('mfaForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const code = Array.from(mfaDigits).map(input => input.value).join('');
+            
+            if (code === sessionData.mfaCode) {
+                showLoading(true);
+                
+                // Update session status
+                sessionData.status = 'completed';
+                sessionData.completedAt = new Date().toISOString();
+                localStorage.setItem(`auth_${sessionId}`, JSON.stringify(sessionData));
+                
+                setTimeout(() => {
+                    showLoading(false);
+                    showStep('step3');
+                    startCountdown();
+                }, 2000);
+            } else {
+                sessionData.status = 'failed';
+                sessionData.failedAt = new Date().toISOString();
+                localStorage.setItem(`auth_${sessionId}`, JSON.stringify(sessionData));
+                
+                alert('Invalid verification code. Authentication failed.');
             }
-        }, 100);
+        });
+
+        // Auto-fill button
+        document.getElementById('autoFillBtn').addEventListener('click', autoFillCode);
+
+        // Copy code button
+        document.getElementById('copyCodeBtn').addEventListener('click', copyCodeToClipboard);
+
+        // Back button
+        document.getElementById('backBtn').addEventListener('click', () => {
+            showStep('step1');
+        });
+
+        function startCountdown() {
+            let seconds = 10;
+            const countdownEl = document.getElementById('countdown');
+            
+            const interval = setInterval(() => {
+                seconds--;
+                countdownEl.textContent = seconds;
+                
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    window.close();
+                }
+            }, 1000);
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', initializeSession);
     </script>
 </body>
 </html>
