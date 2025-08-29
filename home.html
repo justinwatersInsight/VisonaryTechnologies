@@ -301,6 +301,14 @@
             }
         }
 
+        /* Chat Widget Styles */
+        .chat-widget-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .nav-links {
@@ -322,6 +330,11 @@
 
             section {
                 padding: 3rem 1rem;
+            }
+
+            .chat-widget-container {
+                bottom: 10px;
+                right: 10px;
             }
         }
 
@@ -465,10 +478,15 @@
         <p>&copy; 2025 Visionary Technologies. All rights reserved. | Innovating Tomorrow, Today.</p>
     </footer>
 
-    <!-- Live Chat Widget -->
-    <div id="divicw" data-bind="CC883B3E-350F-4AB4-AD66-E55BC7EC4D22" data-org="" data-guid="51ff0b40-2c72-4109-b3de-1b65866b36fc"></div>
-    <script>var i={t:function(t){var e="https://media.imi.chat/widget/js/imichatinit.js";try{var o=new XMLHttpRequest;o.onreadystatechange=function(){if(this.readyState==4){var t=document.getElementById("divicw");if(this.status==0){i.o(t);return}var e=document.createElement("script");e.innerHTML=this.responseText;t.parentNode.insertBefore(e,t.nextSibling)}};o.open("GET",e,true);o.send()}catch(s){console.error(s)}},o:function(t){t.insertAdjacentHTML("afterend",'<iframe id="tls_al_frm" frameborder="0" style="overflow: hidden;height: 208px;width: 394px;position: fixed;display: block;right: 48px;bottom: 12px;z-index: 99999; display:none;"></iframe>');var e=document.getElementById("tls_al_frm");var o=e.contentWindow||(e.contentDocument.document||e.contentDocument);o.document.open();o.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Untitled Document</title><style>body{font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;color: #99a0b0;font-size: 14px;}.popover__content{background-color: #fbfbfe; padding: 1.5rem; border-radius: 5px; width: 300px; box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);position: relative;}.popover__message{font-weight: 600;color:#56627c;font-size: 16px;}.pull-left{float:left;}.clearfix{clear: both;}.hdr-txt{width: 218px; margin-top: 3px;}.para-txt a{text-decoration: none;color: #005cde;}.close-btn{position: absolute;right:15px;top:15px;}.close-btn a{text-decoration: none;font-weight: 400; color: #56627c; font-size: 16px;}</style></head><body><div class="popover__content"><div class="close-btn"><a href="#" onclick="closeTLSAlert();">X</a></div><div class="popover__message"><div class="pull-left hdr-txt">This browser version is not supported on LiveChat.</div></div><div class="clearfix"></div><p class="para-txt">Please update your browser to the latest version and re-open the website to access the widget. </p></div><script>function closeTLSAlert(){window.parent.postMessage({key: "close_tls_alert",value: "close_tls_alert",action: "close_tls_alert"}, "*");}<\\/script></body></html>');o.document.close();e.style.display="block";window.addEventListener("message",function(t){if(t.data.action=="close_tls_alert"){i.s()}})},s:function(){var t=document.getElementById("tls_al_frm");t.remove()}};i.t(function(t){});</script>
+    <!-- Enhanced Chat Widget -->
+    <div id="imi-chat-widget" 
+         class="chat-widget-container"
+         data-bind="CC883B3E-350F-4AB4-AD66-E55BC7EC4D22" 
+         data-org="" 
+         data-guid="51ff0b40-2c72-4109-b3de-1b65866b36fc">
+    </div>
 
+    <!-- Main Website Scripts -->
     <script>
         // Simple smooth scrolling enhancement
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -493,6 +511,280 @@
                 header.style.background = 'rgba(255, 255, 255, 0.95)';
             }
         });
+    </script>
+
+    <!-- Enhanced Chat Widget Script -->
+    <script>
+        (function() {
+            'use strict';
+            
+            const ChatWidget = {
+                config: {
+                    scriptUrl: 'https://media.imi.chat/widget/js/imichatinit.js',
+                    containerId: 'imi-chat-widget',
+                    fallbackId: 'chat-fallback-frame',
+                    retryAttempts: 3,
+                    retryDelay: 2000
+                },
+                
+                init: function() {
+                    console.log('🚀 Initializing IMI Chat Widget...');
+                    this.loadChatScript();
+                },
+                
+                loadChatScript: function(attempt = 1) {
+                    const xhr = new XMLHttpRequest();
+                    const container = document.getElementById(this.config.containerId);
+                    
+                    if (!container) {
+                        console.error('❌ Chat widget container not found');
+                        return;
+                    }
+                    
+                    xhr.onreadystatechange = () => {
+                        if (xhr.readyState === 4) {
+                            if (xhr.status === 200) {
+                                this.injectChatScript(xhr.responseText, container);
+                                console.log('✅ Chat widget loaded successfully');
+                            } else if (xhr.status === 0) {
+                                console.warn('⚠️ Network error loading chat widget');
+                                this.showFallbackMessage(container);
+                            } else {
+                                console.error(`❌ Failed to load chat widget: ${xhr.status}`);
+                                if (attempt < this.config.retryAttempts) {
+                                    console.log(`🔄 Retrying... (${attempt + 1}/${this.config.retryAttempts})`);
+                                    setTimeout(() => {
+                                        this.loadChatScript(attempt + 1);
+                                    }, this.config.retryDelay);
+                                } else {
+                                    this.showFallbackMessage(container);
+                                }
+                            }
+                        }
+                    };
+                    
+                    xhr.onerror = () => {
+                        console.error('🌐 Network error occurred while loading chat widget');
+                        this.showFallbackMessage(container);
+                    };
+                    
+                    xhr.ontimeout = () => {
+                        console.error('⏰ Chat widget loading timed out');
+                        this.showFallbackMessage(container);
+                    };
+                    
+                    try {
+                        xhr.open('GET', this.config.scriptUrl, true);
+                        xhr.timeout = 10000; // 10 second timeout
+                        xhr.send();
+                    } catch (error) {
+                        console.error('💥 Error initiating chat widget request:', error);
+                        this.showFallbackMessage(container);
+                    }
+                },
+                
+                injectChatScript: function(scriptContent, container) {
+                    const script = document.createElement('script');
+                    script.innerHTML = scriptContent;
+                    script.onerror = () => {
+                        console.error('💥 Error executing chat widget script');
+                        this.showFallbackMessage(container);
+                    };
+                    container.parentNode.insertBefore(script, container.nextSibling);
+                },
+                
+                showFallbackMessage: function(container) {
+                    console.log('📋 Showing fallback message');
+                    
+                    const fallbackHtml = `
+                        <iframe id="${this.config.fallbackId}" 
+                                frameborder="0" 
+                                style="overflow: hidden; height: 280px; width: 350px; position: fixed; 
+                                       right: 20px; bottom: 20px; z-index: 99999; border-radius: 15px;
+                                       box-shadow: 0 10px 40px rgba(0,0,0,0.2); display: none;
+                                       border: 1px solid rgba(255,255,255,0.1);">
+                        </iframe>
+                    `;
+                    
+                    container.insertAdjacentHTML('afterend', fallbackHtml);
+                    
+                    const iframe = document.getElementById(this.config.fallbackId);
+                    const iframeDoc = iframe.contentWindow.document;
+                    
+                    iframeDoc.open();
+                    iframeDoc.write(this.getFallbackContent());
+                    iframeDoc.close();
+                    
+                    // Smooth fade-in animation
+                    iframe.style.opacity = '0';
+                    iframe.style.display = 'block';
+                    iframe.style.transition = 'opacity 0.5s ease';
+                    
+                    setTimeout(() => {
+                        iframe.style.opacity = '1';
+                    }, 100);
+                    
+                    // Auto-hide after 15 seconds
+                    setTimeout(() => {
+                        if (iframe && iframe.parentNode) {
+                            iframe.style.opacity = '0';
+                            setTimeout(() => {
+                                iframe.remove();
+                            }, 500);
+                        }
+                    }, 15000);
+                    
+                    this.setupMessageListener();
+                },
+                
+                getFallbackContent: function() {
+                    return `
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="utf-8">
+                            <title>Chat Widget Notice</title>
+                            <style>
+                                body {
+                                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                                    margin: 0;
+                                    padding: 0;
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    color: white;
+                                    height: 100%;
+                                }
+                                .notice-content {
+                                    padding: 1.5rem;
+                                    text-align: center;
+                                    position: relative;
+                                    height: 100%;
+                                    display: flex;
+                                    flex-direction: column;
+                                    justify-content: center;
+                                }
+                                .close-btn {
+                                    position: absolute;
+                                    right: 15px;
+                                    top: 15px;
+                                    background: rgba(255,255,255,0.2);
+                                    border: none;
+                                    color: white;
+                                    width: 30px;
+                                    height: 30px;
+                                    border-radius: 50%;
+                                    cursor: pointer;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-size: 16px;
+                                    font-weight: bold;
+                                    transition: all 0.3s ease;
+                                }
+                                .close-btn:hover {
+                                    background: rgba(255,255,255,0.3);
+                                    transform: scale(1.1);
+                                }
+                                .notice-icon {
+                                    font-size: 3rem;
+                                    margin-bottom: 1rem;
+                                    opacity: 0.9;
+                                }
+                                .notice-title {
+                                    font-size: 18px;
+                                    font-weight: 600;
+                                    margin-bottom: 1rem;
+                                    line-height: 1.3;
+                                }
+                                .notice-text {
+                                    font-size: 14px;
+                                    line-height: 1.5;
+                                    opacity: 0.9;
+                                    margin-bottom: 1.5rem;
+                                }
+                                .contact-info {
+                                    padding-top: 1rem;
+                                    border-top: 1px solid rgba(255,255,255,0.2);
+                                    font-size: 13px;
+                                    line-height: 1.6;
+                                }
+                                .contact-info strong {
+                                    display: block;
+                                    margin-bottom: 0.5rem;
+                                    font-size: 14px;
+                                }
+                                .pulse {
+                                    animation: pulse 2s infinite;
+                                }
+                                @keyframes pulse {
+                                    0% { transform: scale(1); }
+                                    50% { transform: scale(1.05); }
+                                    100% { transform: scale(1); }
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="notice-content">
+                                <button class="close-btn" onclick="closeChatNotice()" title="Close">×</button>
+                                <div class="notice-icon pulse">💬</div>
+                                <div class="notice-title">Chat Temporarily Unavailable</div>
+                                <div class="notice-text">
+                                    We're experiencing technical difficulties with our chat widget. 
+                                    Please reach out to us directly!
+                                </div>
+                                <div class="contact-info">
+                                    <strong>Contact Us:</strong>
+                                    📧 hello@visionarytech.com<br>
+                                    📞 +1 (555) 123-4567<br>
+                                    📞 +1 (858) 737-5955
+                                </div>
+                            </div>
+                            <script>
+                                function closeChatNotice() {
+                                    window.parent.postMessage({
+                                        action: 'close_chat_notice'
+                                    }, '*');
+                                }
+                                
+                                // Auto-close after 15 seconds
+                                setTimeout(() => {
+                                    closeChatNotice();
+                                }, 15000);
+                            </script>
+                        </body>
+                        </html>
+                    `;
+                },
+                
+                setupMessageListener: function() {
+                    window.addEventListener('message', (event) => {
+                        if (event.data.action === 'close_chat_notice') {
+                            const iframe = document.getElementById(this.config.fallbackId);
+                            if (iframe) {
+                                iframe.style.opacity = '0';
+                                iframe.style.transition = 'opacity 0.5s ease';
+                                setTimeout(() => {
+                                    if (iframe.parentNode) {
+                                        iframe.remove();
+                                    }
+                                }, 500);
+                            }
+                        }
+                    });
+                }
+            };
+            
+            // Initialize when DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    ChatWidget.init();
+                });
+            } else {
+                ChatWidget.init();
+            }
+            
+            // Expose for debugging (you can remove this in production)
+            window.ChatWidget = ChatWidget;
+        })();
     </script>
 </body>
 </html>
