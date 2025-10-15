@@ -42,18 +42,47 @@
             align-items: center;
         }
 
+        /* Logo Option 3 Styles */
         .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #ffffff;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        .logo::before {
-            content: "💎";
-            font-size: 1.5rem;
+        .logo-icon-3 {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(26, 35, 126, 0.3);
+            border: 2px solid #00e676;
+        }
+
+        .logo-icon-3::before {
+            content: 'DV';
+            color: #00e676;
+            font-weight: 900;
+            font-size: 14px;
+            letter-spacing: -1px;
+        }
+
+        .logo-text-3 {
+            color: #ffffff;
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text-3 .highlight {
+            background: linear-gradient(135deg, #00e676, #1de9b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .nav-links {
@@ -348,6 +377,19 @@
             .services-grid {
                 grid-template-columns: 1fr;
             }
+
+            .logo-text-3 {
+                font-size: 1.4rem;
+            }
+
+            .logo-icon-3 {
+                width: 35px;
+                height: 35px;
+            }
+
+            .logo-icon-3::before {
+                font-size: 12px;
+            }
         }
     </style>
 </head>
@@ -355,7 +397,12 @@
     <!-- Header -->
     <header>
         <nav class="container">
-            <div class="logo">Dynamic Ventures</div>
+            <div class="logo">
+                <div class="logo-icon-3"></div>
+                <div class="logo-text-3">
+                    <span class="highlight">Dynamic</span> Ventures
+                </div>
+            </div>
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
                 <li><a href="#about">About</a></li>
