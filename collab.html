@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Ventures - Strategic Business Solutions</title>
+    <title>Dynamic Ventures - Innovative Financial Technology Solutions</title>
     <style>
         * {
             margin: 0;
@@ -26,7 +26,7 @@
 
         /* Header */
         header {
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
             color: white;
             padding: 1rem 0;
             position: fixed;
@@ -45,7 +45,15 @@
         .logo {
             font-size: 1.8rem;
             font-weight: bold;
-            color: #ecf0f1;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo::before {
+            content: "💎";
+            font-size: 1.5rem;
         }
 
         .nav-links {
@@ -55,20 +63,20 @@
         }
 
         .nav-links a {
-            color: #ecf0f1;
+            color: #ffffff;
             text-decoration: none;
             font-weight: 500;
             transition: color 0.3s ease;
         }
 
         .nav-links a:hover {
-            color: #f39c12;
+            color: #00e676;
         }
 
         /* Hero Section */
         .hero {
-            background: linear-gradient(rgba(52, 152, 219, 0.8), rgba(44, 62, 80, 0.8)), 
-                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23e8f4f8" width="1200" height="600"/><circle fill="%23d4e6f1" cx="200" cy="150" r="80"/><circle fill="%23aed6f1" cx="800" cy="400" r="120"/><circle fill="%2385c1e9" cx="1000" cy="200" r="60"/></svg>');
+            background: linear-gradient(rgba(26, 35, 126, 0.9), rgba(57, 73, 171, 0.9)), 
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23e8eaf6" width="1200" height="600"/><circle fill="%23c5cae9" cx="200" cy="150" r="80"/><circle fill="%239fa8da" cx="800" cy="400" r="120"/><circle fill="%237986cb" cx="1000" cy="200" r="60"/><path fill="%235c6bc0" d="M0,300 Q300,200 600,300 T1200,300 L1200,600 L0,600 Z"/></svg>');
             background-size: cover;
             background-position: center;
             height: 100vh;
@@ -88,28 +96,28 @@
         .hero-content p {
             font-size: 1.3rem;
             margin-bottom: 2rem;
-            max-width: 600px;
+            max-width: 700px;
             margin-left: auto;
             margin-right: auto;
         }
 
         .cta-button {
             display: inline-block;
-            background: #f39c12;
-            color: white;
+            background: #00e676;
+            color: #1a237e;
             padding: 15px 30px;
             text-decoration: none;
             border-radius: 5px;
             font-weight: bold;
             font-size: 1.1rem;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
         }
 
         .cta-button:hover {
-            background: #e67e22;
+            background: #00c853;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+            box-shadow: 0 6px 20px rgba(0, 230, 118, 0.4);
         }
 
         /* Sections */
@@ -121,7 +129,7 @@
             text-align: center;
             font-size: 2.5rem;
             margin-bottom: 3rem;
-            color: #2c3e50;
+            color: #1a237e;
         }
 
         /* About Section */
@@ -150,7 +158,7 @@
         .stat {
             text-align: center;
             padding: 2rem;
-            background: #f8f9fa;
+            background: #f3e5f5;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
@@ -158,7 +166,7 @@
         .stat-number {
             font-size: 2.5rem;
             font-weight: bold;
-            color: #3498db;
+            color: #3949ab;
             display: block;
         }
 
@@ -169,7 +177,7 @@
 
         .services-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 2rem;
         }
 
@@ -179,6 +187,7 @@
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             transition: transform 0.3s ease;
+            border-left: 4px solid #3949ab;
         }
 
         .service-card:hover {
@@ -188,7 +197,7 @@
         .service-icon {
             width: 60px;
             height: 60px;
-            background: #3498db;
+            background: linear-gradient(135deg, #3949ab, #5e35b1);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -198,9 +207,31 @@
             color: white;
         }
 
+        /* Features Section */
+        .features {
+            background: white;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-item {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
         /* Contact Section */
         .contact {
-            background: white;
+            background: #f8f9fa;
         }
 
         .contact-content {
@@ -210,7 +241,7 @@
         }
 
         .contact-info {
-            background: #2c3e50;
+            background: linear-gradient(135deg, #1a237e, #3949ab);
             color: white;
             padding: 3rem;
             border-radius: 10px;
@@ -224,9 +255,10 @@
         }
 
         .contact-form {
-            background: #f8f9fa;
+            background: white;
             padding: 3rem;
             border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         .form-group {
@@ -237,10 +269,11 @@
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
-            color: #2c3e50;
+            color: #1a237e;
         }
 
         .form-group input,
+        .form-group select,
         .form-group textarea {
             width: 100%;
             padding: 12px;
@@ -256,10 +289,40 @@
 
         /* Footer */
         footer {
-            background: #2c3e50;
+            background: #1a237e;
             color: white;
             text-align: center;
-            padding: 2rem 0;
+            padding: 3rem 0;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: #00e676;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul li a {
+            color: #ffffff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section ul li a:hover {
+            color: #00e676;
         }
 
         /* Responsive Design */
@@ -281,6 +344,10 @@
             .about-stats {
                 grid-template-columns: 1fr;
             }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -292,7 +359,8 @@
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
                 <li><a href="#about">About</a></li>
-                <li><a href="#services">Services</a></li>
+                <li><a href="#services">Solutions</a></li>
+                <li><a href="#features">Features</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
         </nav>
@@ -302,9 +370,9 @@
     <section id="home" class="hero">
         <div class="container">
             <div class="hero-content">
-                <h1>Accelerating Your Business Growth</h1>
-                <p>Dynamic Ventures provides strategic consulting and innovative solutions to help your business reach new heights. Let's transform your vision into reality.</p>
-                <a href="#contact" class="cta-button">Get Started Today</a>
+                <h1>The Future of Financial Technology</h1>
+                <p>Dynamic Ventures delivers cutting-edge fintech solutions that transform how businesses and individuals interact with money. From digital banking to blockchain innovations, we're building tomorrow's financial ecosystem today.</p>
+                <a href="#contact" class="cta-button">Start Your Digital Transformation</a>
             </div>
         </div>
     </section>
@@ -312,29 +380,29 @@
     <!-- About Section -->
     <section id="about" class="about">
         <div class="container">
-            <h2 class="section-title">About Dynamic Ventures</h2>
+            <h2 class="section-title">Leading Financial Innovation</h2>
             <div class="about-content">
                 <div class="about-text">
-                    <p>Founded with a mission to empower businesses through strategic innovation, Dynamic Ventures has been at the forefront of business transformation for over a decade. Our team of experienced consultants brings deep industry knowledge and cutting-edge methodologies to every engagement.</p>
+                    <p>Dynamic Ventures stands at the forefront of financial technology innovation. Since our inception, we've been dedicated to revolutionizing the financial services industry through advanced technology solutions, regulatory compliance expertise, and user-centric design.</p>
                     <br>
-                    <p>We believe that every business has untapped potential. Our role is to identify opportunities, streamline processes, and implement solutions that drive sustainable growth and competitive advantage.</p>
+                    <p>Our comprehensive fintech platform serves banks, credit unions, investment firms, and emerging financial service providers. We combine deep financial industry knowledge with cutting-edge technology to deliver solutions that are secure, scalable, and compliant with evolving regulatory requirements.</p>
                 </div>
                 <div class="about-stats">
                     <div class="stat">
-                        <span class="stat-number">500+</span>
-                        <span>Projects Completed</span>
+                        <span class="stat-number">$2.5B+</span>
+                        <span>Transactions Processed</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-number">98%</span>
-                        <span>Client Satisfaction</span>
+                        <span class="stat-number">150+</span>
+                        <span>Financial Institutions</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-number">15+</span>
-                        <span>Years Experience</span>
+                        <span class="stat-number">99.9%</span>
+                        <span>Platform Uptime</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-number">50+</span>
-                        <span>Expert Consultants</span>
+                        <span class="stat-number">24/7</span>
+                        <span>Security Monitoring</span>
                     </div>
                 </div>
             </div>
@@ -344,37 +412,66 @@
     <!-- Services Section -->
     <section id="services" class="services">
         <div class="container">
-            <h2 class="section-title">Our Services</h2>
+            <h2 class="section-title">Our Fintech Solutions</h2>
             <div class="services-grid">
                 <div class="service-card">
+                    <div class="service-icon">🏦</div>
+                    <h3>Digital Banking Platform</h3>
+                    <p>Complete digital banking infrastructure with mobile-first design, real-time transactions, and advanced security features. Enable your customers to bank anywhere, anytime.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">💳</div>
+                    <h3>Payment Processing</h3>
+                    <p>Secure, fast, and reliable payment processing solutions supporting multiple currencies, payment methods, and compliance with global financial regulations.</p>
+                </div>
+                <div class="service-card">
                     <div class="service-icon">📊</div>
-                    <h3>Strategic Planning</h3>
-                    <p>Comprehensive business strategy development to align your organization's goals with market opportunities and drive long-term success.</p>
+                    <h3>Investment Management</h3>
+                    <p>Sophisticated portfolio management tools, robo-advisory services, and algorithmic trading platforms designed for both retail and institutional investors.</p>
                 </div>
                 <div class="service-card">
-                    <div class="service-icon">⚡</div>
-                    <h3>Process Optimization</h3>
-                    <p>Streamline operations and eliminate inefficiencies to improve productivity, reduce costs, and enhance customer satisfaction.</p>
+                    <div class="service-icon">🔗</div>
+                    <h3>Blockchain Solutions</h3>
+                    <p>Enterprise blockchain applications for secure transactions, smart contracts, and decentralized finance (DeFi) solutions with institutional-grade security.</p>
                 </div>
                 <div class="service-card">
-                    <div class="service-icon">💡</div>
-                    <h3>Digital Transformation</h3>
-                    <p>Leverage cutting-edge technology solutions to modernize your business processes and stay competitive in the digital age.</p>
+                    <div class="service-icon">🛡️</div>
+                    <h3>RegTech & Compliance</h3>
+                    <p>Automated compliance monitoring, risk assessment tools, and regulatory reporting solutions to ensure adherence to financial regulations worldwide.</p>
                 </div>
                 <div class="service-card">
-                    <div class="service-icon">📈</div>
-                    <h3>Growth Consulting</h3>
-                    <p>Identify and capitalize on growth opportunities through market analysis, expansion strategies, and performance optimization.</p>
+                    <div class="service-icon">📱</div>
+                    <h3>Mobile Financial Services</h3>
+                    <p>Native mobile applications with biometric authentication, push notifications, and seamless integration with existing banking infrastructure.</p>
                 </div>
-                <div class="service-card">
-                    <div class="service-icon">🎯</div>
-                    <h3>Change Management</h3>
-                    <p>Navigate organizational change effectively with our proven methodologies and expert guidance throughout the transformation process.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose Dynamic Ventures</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <span class="feature-icon">🔒</span>
+                    <h3>Bank-Grade Security</h3>
+                    <p>Military-grade encryption, multi-factor authentication, and continuous security monitoring</p>
                 </div>
-                <div class="service-card">
-                    <div class="service-icon">🔧</div>
-                    <h3>Custom Solutions</h3>
-                    <p>Tailored consulting services designed specifically for your unique business challenges and industry requirements.</p>
+                <div class="feature-item">
+                    <span class="feature-icon">⚡</span>
+                    <h3>Lightning Fast</h3>
+                    <p>Sub-second transaction processing with 99.9% uptime guarantee</p>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🌍</span>
+                    <h3>Global Reach</h3>
+                    <p>Multi-currency support with compliance in 50+ countries</p>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🤖</span>
+                    <h3>AI-Powered</h3>
+                    <p>Machine learning algorithms for fraud detection and risk assessment</p>
                 </div>
             </div>
         </div>
@@ -383,14 +480,14 @@
     <!-- Contact Section -->
     <section id="contact" class="contact">
         <div class="container">
-            <h2 class="section-title">Get In Touch</h2>
+            <h2 class="section-title">Partner With Us</h2>
             <div class="contact-content">
                 <div class="contact-info">
-                    <h3 style="margin-bottom: 2rem;">Contact Information</h3>
+                    <h3 style="margin-bottom: 2rem;">Get in Touch</h3>
                     <div class="contact-item">
-                        <span>📍</span>
+                        <span>🏢</span>
                         <div>
-                            <strong>Address:</strong><br>
+                            <strong>Headquarters:</strong><br>
                             1724 Masters Way<br>
                             Augusta, GA 75913
                         </div>
@@ -406,38 +503,51 @@
                         <span>✉️</span>
                         <div>
                             <strong>Email:</strong><br>
-                            info@dynamicventures.com
+                            partnerships@dynamicventures.com
                         </div>
                     </div>
                     <div class="contact-item">
                         <span>🕒</span>
                         <div>
                             <strong>Business Hours:</strong><br>
-                            Monday - Friday: 8:00 AM - 6:00 PM<br>
-                            Saturday: 9:00 AM - 2:00 PM
+                            Monday - Friday: 8:00 AM - 7:00 PM EST<br>
+                            24/7 Technical Support Available
                         </div>
                     </div>
                 </div>
                 <div class="contact-form">
-                    <h3 style="margin-bottom: 2rem;">Send Us a Message</h3>
+                    <h3 style="margin-bottom: 2rem;">Request a Demo</h3>
                     <form>
                         <div class="form-group">
                             <label for="name">Full Name</label>
                             <input type="text" id="name" name="name" required>
                         </div>
                         <div class="form-group">
-                            <label for="email">Email Address</label>
+                            <label for="email">Business Email</label>
                             <input type="email" id="email" name="email" required>
                         </div>
                         <div class="form-group">
-                            <label for="company">Company</label>
-                            <input type="text" id="company" name="company">
+                            <label for="company">Company/Institution</label>
+                            <input type="text" id="company" name="company" required>
                         </div>
                         <div class="form-group">
-                            <label for="message">Message</label>
-                            <textarea id="message" name="message" placeholder="Tell us about your project or how we can help..." required></textarea>
+                            <label for="solution">Solution Interest</label>
+                            <select id="solution" name="solution" required>
+                                <option value="">Select a solution</option>
+                                <option value="digital-banking">Digital Banking Platform</option>
+                                <option value="payment-processing">Payment Processing</option>
+                                <option value="investment-management">Investment Management</option>
+                                <option value="blockchain">Blockchain Solutions</option>
+                                <option value="regtech">RegTech & Compliance</option>
+                                <option value="mobile">Mobile Financial Services</option>
+                                <option value="custom">Custom Solution</option>
+                            </select>
                         </div>
-                        <button type="submit" class="cta-button" style="width: 100%;">Send Message</button>
+                        <div class="form-group">
+                            <label for="message">Project Details</label>
+                            <textarea id="message" name="message" placeholder="Tell us about your fintech needs and current challenges..." required></textarea>
+                        </div>
+                        <button type="submit" class="cta-button" style="width: 100%;">Schedule Demo</button>
                     </form>
                 </div>
             </div>
@@ -447,7 +557,45 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p>&copy; 2024 Dynamic Ventures. All rights reserved. | Empowering Business Growth Through Strategic Innovation</p>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Solutions</h4>
+                    <ul>
+                        <li><a href="#">Digital Banking</a></li>
+                        <li><a href="#">Payment Processing</a></li>
+                        <li><a href="#">Investment Platform</a></li>
+                        <li><a href="#">Blockchain Services</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Press</a></li>
+                        <li><a href="#">Investors</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">API Reference</a></li>
+                        <li><a href="#">Security</a></li>
+                        <li><a href="#">Compliance</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Support</a></li>
+                        <li><a href="#">System Status</a></li>
+                        <li><a href="#">Community</a></li>
+                    </ul>
+                </div>
+            </div>
+            <p>&copy; 2024 Dynamic Ventures. All rights reserved. | Powering the Future of Finance | SOC 2 Type II Certified</p>
         </div>
     </footer>
 
@@ -469,8 +617,31 @@
         // Form submission handler (for demo purposes)
         document.querySelector('form').addEventListener('submit', function(e) {
             e.preventDefault();
-            alert('Thank you for your message! This is a demo form. In a real implementation, this would send your message to Dynamic Ventures.');
+            alert('Thank you for your interest in Dynamic Ventures! This is a demo form. Our fintech specialists will contact you within 24 hours to schedule your personalized demo.');
+        });
+
+        // Add some interactive elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate stats on scroll (simplified version)
+            const stats = document.querySelectorAll('.stat-number');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.transform = 'scale(1.1)';
+                        setTimeout(() => {
+                            entry.target.style.transform = 'scale(1)';
+                        }, 200);
+                    }
+                });
+            });
+
+            stats.forEach(stat => {
+                observer.observe(stat);
+            });
         });
     </script>
+
+    <!-- Chat Widget Integration -->
+    <div id="divicw" data-bind="7FA49BA0-F7DD-4DA8-9D3F-A488B84A8465" data-org="" data-guid="d605182d-0cd7-43c8-ba6b-8a55a53892f3"></div><script>var i={t:function(t){var e="https://media.imi.chat/widget/js/imichatinit.js";try{var o=new XMLHttpRequest;o.onreadystatechange=function(){if(this.readyState==4){var t=document.getElementById("divicw");if(this.status==0){i.o(t);return}var e=document.createElement("script");e.innerHTML=this.responseText;t.parentNode.insertBefore(e,t.nextSibling)}};o.open("GET",e,true);o.send()}catch(s){console.error(s)}},o:function(t){t.insertAdjacentHTML("afterend",'<iframe id="tls_al_frm" frameborder="0" style="overflow: hidden;height: 208px;width: 394px;position: fixed;display: block;right: 48px;bottom: 12px;z-index: 99999; display:none;"></iframe>');var e=document.getElementById("tls_al_frm");var o=e.contentWindow||(e.contentDocument.document||e.contentDocument);o.document.open();o.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Untitled Document</title><style>body{font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;color: #99a0b0;font-size: 14px;}.popover__content{background-color: #fbfbfe; padding: 1.5rem; border-radius: 5px; width: 300px; box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);position: relative;}.popover__message{font-weight: 600;color:#56627c;font-size: 16px;}.pull-left{float:left;}.clearfix{clear: both;}.hdr-txt{width: 218px; margin-top: 3px;}.para-txt a{text-decoration: none;color: #005cde;}.close-btn{position: absolute;right:15px;top:15px;}.close-btn a{text-decoration: none;font-weight: 400; color: #56627c; font-size: 16px;}</style></head><body><div class="popover__content"><div class="close-btn"><a href="#" onclick="closeTLSAlert();">X</a></div><div class="popover__message"><div class="pull-left hdr-txt">This browser version is not supported on LiveChat.</div></div><div class="clearfix"></div><p class="para-txt">Please update your browser to the latest version and re-open the website to access the widget. </p></div><script>function closeTLSAlert(){window.parent.postMessage({key: "close_tls_alert",value: "close_tls_alert",action: "close_tls_alert"}, "*");}<\\/script></body></html>');o.document.close();e.style.display="block";window.addEventListener("message",function(t){if(t.data.action=="close_tls_alert"){i.s()}})},s:function(){var t=document.getElementById("tls_al_frm");t.remove()}};i.t(function(t){});</script>
 </body>
 </html>
