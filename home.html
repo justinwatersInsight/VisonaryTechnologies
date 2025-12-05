@@ -289,65 +289,6 @@
             padding: 2rem;
         }
 
-        /* Chat Widget Debug Styles */
-        .chat-debug {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #f0f0f0;
-            border: 2px solid #ccc;
-            border-radius: 10px;
-            padding: 15px;
-            font-family: monospace;
-            font-size: 12px;
-            max-width: 300px;
-            z-index: 99998;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        .chat-debug h4 {
-            margin: 0 0 10px 0;
-            color: #333;
-        }
-
-        .chat-debug .status {
-            margin: 5px 0;
-            padding: 3px 6px;
-            border-radius: 3px;
-        }
-
-        .status.loading { background: #fff3cd; color: #856404; }
-        .status.success { background: #d4edda; color: #155724; }
-        .status.error { background: #f8d7da; color: #721c24; }
-
-        /* Temporary Chat Button */
-        .temp-chat-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 99997;
-            transition: all 0.3s ease;
-        }
-
-        .temp-chat-btn:hover {
-            transform: scale(1.1);
-            background: var(--secondary-color);
-        }
-
-        .temp-chat-btn span {
-            color: white;
-            font-size: 24px;
-        }
-
         /* Animations */
         @keyframes fadeInUp {
             from {
@@ -381,13 +322,6 @@
 
             section {
                 padding: 3rem 1rem;
-            }
-
-            .chat-debug {
-                right: 10px;
-                bottom: 10px;
-                max-width: 250px;
-                font-size: 10px;
             }
         }
 
@@ -530,20 +464,8 @@
         <p>&copy; 2025 Visionary Technologies. All rights reserved. | Innovating Tomorrow, Today.</p>
     </footer>
 
-    <!-- LiveChat Widget -->
+    <!-- Chat Widget -->
     <div id="divicw" data-bind="CC883B3E-350F-4AB4-AD66-E55BC7EC4D22" data-org="" data-guid="51ff0b40-2c72-4109-b3de-1b65866b36fc"></div>
-
-    <!-- Debug Panel -->
-    <div id="chat-debug" class="chat-debug" style="display: none;">
-        <h4>Chat Widget Debug</h4>
-        <div id="debug-content"></div>
-        <button onclick="document.getElementById('chat-debug').style.display='none'" style="margin-top: 10px; padding: 5px 10px; border: none; background: #007bff; color: white; border-radius: 3px; cursor: pointer;">Hide</button>
-    </div>
-
-    <!-- Temporary Chat Button -->
-    <div id="temp-chat-btn" class="temp-chat-btn" onclick="showChatOptions()" style="display: none;">
-        <span>💬</span>
-    </div>
 
     <!-- Main Website Scripts -->
     <script>
@@ -570,153 +492,9 @@
                 header.style.background = 'rgba(255, 255, 255, 0.95)';
             }
         });
-
-        // Debug functions
-        function updateDebug(message, type = 'loading') {
-            const debugPanel = document.getElementById('chat-debug');
-            const debugContent = document.getElementById('debug-content');
-            
-            debugPanel.style.display = 'block';
-            
-            const timestamp = new Date().toLocaleTimeString();
-            const statusDiv = document.createElement('div');
-            statusDiv.className = `status ${type}`;
-            statusDiv.innerHTML = `${timestamp}: ${message}`;
-            
-            debugContent.appendChild(statusDiv);
-            
-            // Keep only last 5 messages
-            while (debugContent.children.length > 5) {
-                debugContent.removeChild(debugContent.firstChild);
-            }
-        }
-
-        function showChatOptions() {
-            alert('Chat widget is not available. Please contact us at:\n\nEmail: hello@visionarytech.com\nPhone: +1 (858) 737-5955');
-        }
-
-        // Show temporary button after 5 seconds if no widget appears
-        setTimeout(() => {
-            const widgetExists = document.querySelector('[id*="chat"], [class*="chat"], iframe[src*="chat"], iframe[src*="imi"]');
-            if (!widgetExists) {
-                document.getElementById('temp-chat-btn').style.display = 'flex';
-                updateDebug('No widget detected, showing fallback button', 'error');
-            }
-        }, 5000);
     </script>
 
-    <!-- Enhanced LiveChat Widget Script with Debugging -->
-    <script>
-        updateDebug('Starting chat widget initialization', 'loading');
-
-        var i = {
-            t: function() {
-                updateDebug('Attempting to load chat script', 'loading');
-                try {
-                    var e = document.getElementById("divicw");
-                    if (!e) {
-                        updateDebug('Chat container element not found', 'error');
-                        return;
-                    }
-
-                    var t = document.createElement("script");
-                    t.src = "https://media.imi.chat/widget/js/imichatinit.js?t=" + new Date().toISOString();
-                    
-                    updateDebug('Loading script from: ' + t.src, 'loading');
-                    
-                    e.insertAdjacentElement("afterend", t);
-                    
-                    t.addEventListener("load", function() {
-                        updateDebug('Chat script loaded successfully!', 'success');
-                        console.log(new Date().toISOString(), "Livechat script loaded successfully!");
-                        
-                        // Hide temp button if it exists
-                        const tempBtn = document.getElementById('temp-chat-btn');
-                        if (tempBtn) tempBtn.style.display = 'none';
-                        
-                        // Check for widget appearance after script loads
-                        setTimeout(() => {
-                            const widgetCheck = document.querySelector('[id*="imi"], [class*="imi"], iframe[src*="imi"]');
-                            if (widgetCheck) {
-                                updateDebug('Widget elements detected in DOM', 'success');
-                            } else {
-                                updateDebug('Script loaded but no widget elements found', 'error');
-                            }
-                        }, 2000);
-                    });
-                    
-                    t.addEventListener("error", function() {
-                        updateDebug('Error loading chat script - network issue', 'error');
-                        console.log(new Date().toISOString(), "Error loading Livechat script");
-                        i.o(e);
-                    });
-
-                    // Timeout fallback
-                    setTimeout(() => {
-                        if (!t.complete) {
-                            updateDebug('Script loading timeout', 'error');
-                            i.o(e);
-                        }
-                    }, 10000);
-
-                } catch (e) {
-                    updateDebug('Exception in chat initialization: ' + e.message, 'error');
-                    console.error(e);
-                }
-            },
-            o: function(e) {
-                updateDebug('Showing browser compatibility fallback', 'loading');
-                e.insertAdjacentHTML("afterend", '<iframe id="tls_al_frm" frameborder="0" style="overflow:hidden;height:208px;width:394px;position:fixed;display:block;right:48px;bottom:12px;z-index:99999;display:none;"></iframe>');
-                var t = document.getElementById("tls_al_frm"),
-                    n = t.contentWindow,
-                    d = n.document;
-                d.open();
-                d.write("<!doctype html><html><head><meta charset='utf-8'><title>Untitled Document</title><style>body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#99a0b0;font-size:14px}.popover__content{background-color:#fbfbfe;padding:1.5rem;border-radius:5px;width:300px;box-shadow:0 2px 5px 0 rgba(0,0,0,0.26);position:relative}.popover__message{font-weight:600;color:#56627c;font-size:16px}.pull-left{float:left}.clearfix{clear:both}.hdr-txt{width:218px;margin-top:3px}.para-txt a{text-decoration:none;color:#005cde}.close-btn{position:absolute;right:15px;top:15px}.close-btn a{text-decoration:none;font-weight:400;color:#56627c;font-size:16px}</style></head><body><div class='popover__content'><div class='close-btn'><a href='#' onclick='closeTLSAlert()'>X</a></div><div class='popover__message'><div class='pull-left hdr-txt'>This browser version is not supported on LiveChat.</div></div><div class='clearfix'></div><p class='para-txt'>Please update your browser to the latest version and re-open the website to access the widget.</p></div><script>function closeTLSAlert(){window.parent.postMessage({key:'close_tls_alert',value:'close_tls_alert',action:'close_tls_alert'},'*');}<\/script></body></html>");
-                d.close();
-                t.style.display = 'block';
-                updateDebug('Browser compatibility message displayed', 'success');
-                
-                window.addEventListener('message', function(e) {
-                    if ('close_tls_alert' === e.data.action) {
-                        i.s();
-                        updateDebug('Compatibility message closed by user', 'loading');
-                    }
-                });
-            },
-            s: function() {
-                var e = document.getElementById('tls_al_frm');
-                if (e) {
-                    e.remove();
-                    updateDebug('Compatibility message removed', 'loading');
-                }
-            }
-        };
-
-        // Initialize the chat widget
-        i.t();
-
-        // Additional debugging - check DOM periodically
-        let checkCount = 0;
-        const checkInterval = setInterval(() => {
-            checkCount++;
-            const widgets = document.querySelectorAll('[id*="imi"], [class*="imi"], iframe[src*="imi"], [id*="chat"], [class*="chat"]');
-            
-            if (widgets.length > 0) {
-                updateDebug(`Found ${widgets.length} widget element(s) in DOM`, 'success');
-                clearInterval(checkInterval);
-                
-                // Hide debug panel after successful detection
-                setTimeout(() => {
-                    document.getElementById('chat-debug').style.display = 'none';
-                }, 3000);
-            } else if (checkCount >= 20) { // Stop checking after 20 attempts (10 seconds)
-                updateDebug('Widget detection timeout - no elements found', 'error');
-                clearInterval(checkInterval);
-                
-                // Show temporary button
-                document.getElementById('temp-chat-btn').style.display = 'flex';
-            }
-        }, 500);
-    </script>
+    <!-- Chat Widget Script -->
+    <script>{3}var i={t:function(){try{var e=document.getElementById("divicw"),t=document.createElement("script");t.src="https://media.imi.chat/widget/js/imichatinit.js?t="+new Date().toISOString(),e.insertAdjacentElement("afterend",t),t.addEventListener("load",function(){console.log(new Date().toISOString(),"Livechat script loaded successfully!")}),t.addEventListener("error",function(){console.log(new Date().toISOString(),"Error loading Livechat script");i.o(e)})}catch(e){console.error(e)}},o:function(e){e.insertAdjacentHTML("afterend",'<iframe id="tls_al_frm" frameborder="0" style="overflow:hidden;height:208px;width:394px;position:fixed;display:block;right:48px;bottom:12px;z-index:99999;display:none;"></iframe>');var t=document.getElementById("tls_al_frm"),n=t.contentWindow,d=n.document;d.open();d.write("<!doctype html><html><head><meta charset='utf-8'><title>Untitled Document</title><style>body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#99a0b0;font-size:14px}.popover__content{background-color:#fbfbfe;padding:1.5rem;border-radius:5px;width:300px;box-shadow:0 2px 5px 0 rgba(0,0,0,0.26);position:relative}.popover__message{font-weight:600;color:#56627c;font-size:16px}.pull-left{float:left}.clearfix{clear:both}.hdr-txt{width:218px;margin-top:3px}.para-txt a{text-decoration:none;color:#005cde}.close-btn{position:absolute;right:15px;top:15px}.close-btn a{text-decoration:none;font-weight:400;color:#56627c;font-size:16px}</style></head><body><div class='popover__content'><div class='close-btn'><a href='#' onclick='closeTLSAlert()'>X</a></div><div class='popover__message'><div class='pull-left hdr-txt'>This browser version is not supported on LiveChat.</div></div><div class='clearfix'></div><p class='para-txt'>Please update your browser to the latest version and re-open the website to access the widget.</p></div><script>function closeTLSAlert(){window.parent.postMessage({key:'close_tls_alert',value:'close_tls_alert',action:'close_tls_alert'},'*');}<\/script></body></html>");d.close();t.style.display='block';window.addEventListener('message',function(e){'close_tls_alert'===e.data.action&&i.s()})},s:function(){var e=document.getElementById('tls_al_frm');e&&e.remove()}};i.t();</script>
 </body>
 </html>
